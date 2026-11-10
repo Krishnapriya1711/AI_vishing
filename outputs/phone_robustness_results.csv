@@ -1,0 +1,10 @@
+train_condition,eval_condition,window_sec,model,eer,min_tdcf,accuracy,f1
+clean,clean,2.0,logistic_regression,0.01,0.015,0.99,0.99
+clean,clean,2.0,random_forest,0.01,0.019500000000000003,0.99,0.99
+clean,clean,2.0,svm,0.005,0.0145,0.995,0.995
+clean,telephone,2.0,logistic_regression,0.195,0.3595,0.805,0.805
+clean,telephone,2.0,random_forest,0.24,0.626,0.7525,0.7591240875912408
+clean,telephone,2.0,svm,0.285,0.6559999999999999,0.715,0.715
+clean,telephone_codec,2.0,logistic_regression,0.23,0.5325000000000001,0.77,0.77
+clean,telephone_codec,2.0,random_forest,0.26,0.64,0.74,0.7438423645320197
+clean,telephone_codec,2.0,svm,0.31,0.677,0.69,0.69
