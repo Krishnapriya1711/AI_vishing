@@ -236,6 +236,68 @@ def evaluate_predictions(
     }
 
 
+def evaluate_with_frozen_threshold(
+    eval_labels: np.ndarray,
+    eval_scores: np.ndarray,
+    threshold: float,
+) -> Dict[str, float]:
+    """Evaluate using a threshold determined on a separate validation set.
+
+    This avoids the data leakage that occurs when the EER-optimal
+    threshold is found and applied on the same evaluation data.
+
+    Parameters
+    ----------
+    eval_labels : array-like (0 = bonafide, 1 = spoof)
+    eval_scores : array-like (higher = more likely spoof)
+    threshold : float
+        Frozen threshold from the validation/dev set.
+
+    Returns
+    -------
+    dict with the same keys as ``evaluate_predictions`` but using
+    the provided threshold for hard predictions.
+    """
+    labels = np.asarray(eval_labels)
+    scores = np.asarray(eval_scores, dtype=np.float64)
+
+    # EER is threshold-free (it's the minimum of the DET curve)
+    eer, eer_threshold = compute_eer(labels, scores)
+
+    # Hard predictions at the FROZEN threshold (not the eval-optimal one)
+    preds = (scores >= threshold).astype(int)
+
+    try:
+        min_tdcf = compute_min_tdcf(labels, scores)
+    except ValueError:
+        min_tdcf = float("nan")
+
+    acc = accuracy_score(labels, preds)
+    prec = precision_score(labels, preds, zero_division=0)
+    rec = recall_score(labels, preds, zero_division=0)
+    f1 = f1_score(labels, preds, zero_division=0)
+
+    try:
+        auc = roc_auc_score(labels, scores)
+    except ValueError:
+        auc = float("nan")
+
+    cm = confusion_matrix(labels, preds)
+
+    return {
+        "eer": eer,
+        "eer_threshold": eer_threshold,
+        "frozen_threshold": threshold,
+        "min_tdcf": min_tdcf,
+        "accuracy": acc,
+        "precision": prec,
+        "recall": rec,
+        "f1": f1,
+        "auc": auc,
+        "confusion_matrix": cm,
+    }
+
+
 # ============================================================
 # FORMAT RESULTS FOR PRINTING
 # ============================================================
