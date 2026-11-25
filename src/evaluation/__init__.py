@@ -4,6 +4,7 @@ from .metrics import (
     compute_eer,
     compute_min_tdcf,
     evaluate_predictions,
+    evaluate_with_frozen_threshold,
     format_results,
 )
 from .short_duration import run_short_duration_experiment, run_short_duration_cnn

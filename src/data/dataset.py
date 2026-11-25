@@ -104,6 +104,45 @@ def filter_metadata(
     return result.reset_index(drop=True)
 
 
+def split_train_val(
+    df: pd.DataFrame,
+    val_ratio: float = 0.2,
+    random_state: int = 42,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Split a metadata DataFrame into stratified train and validation sets.
+
+    Preserves class balance (bonafide/spoof) in both splits.
+
+    Parameters
+    ----------
+    df : DataFrame
+        Must contain a ``label`` column.
+    val_ratio : float
+        Fraction of data to allocate to validation (default 0.2).
+    random_state : int
+
+    Returns
+    -------
+    train_df, val_df : DataFrames
+    """
+    parts = []
+    for label in df["label"].unique():
+        sub = df[df["label"] == label]
+        n_val = max(1, int(len(sub) * val_ratio))
+        val_sub = sub.sample(n=n_val, random_state=random_state)
+        train_sub = sub.drop(val_sub.index)
+        parts.append((train_sub, val_sub))
+
+    train_df = pd.concat([p[0] for p in parts], ignore_index=True)
+    val_df = pd.concat([p[1] for p in parts], ignore_index=True)
+
+    # Shuffle
+    train_df = train_df.sample(frac=1, random_state=random_state).reset_index(drop=True)
+    val_df = val_df.sample(frac=1, random_state=random_state).reset_index(drop=True)
+
+    return train_df, val_df
+
+
 def get_label(row: pd.Series, label_map: dict | None = None) -> int:
     """Map a textual label to 0 (bonafide) / 1 (spoof)."""
     if label_map is None:
