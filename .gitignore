@@ -78,5 +78,5 @@ build/
 # ------------------------------------------------------------
 
 results/
-outputs/
+outputs/cache/
 checkpoints/

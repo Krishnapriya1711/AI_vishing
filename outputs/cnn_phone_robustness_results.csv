@@ -1,0 +1,4 @@
+train_condition,eval_condition,window_sec,model,eer,min_tdcf,accuracy,f1
+clean,clean,2.0,cnn,0.0,0.0,1.0,1.0
+clean,telephone,2.0,cnn,0.445,0.7190000000000001,0.555,0.555
+clean,telephone_codec,2.0,cnn,0.465,0.8115000000000001,0.535,0.535

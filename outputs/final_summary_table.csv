@@ -1,0 +1,13 @@
+regime,window,eval_condition,logistic_regression,random_forest,svm,cnn
+aug,0.5,clean,37.3,37.0,36.2,29.6
+aug,0.5,telephone,41.2,40.3,40.0,32.1
+aug,0.5,telephone_codec,41.3,41.3,40.8,32.0
+aug,1.0,clean,36.3,33.9,33.9,24.9
+aug,1.0,telephone,39.4,38.9,38.5,28.1
+aug,1.0,telephone_codec,40.0,39.6,38.6,28.7
+clean,0.5,clean,37.0,36.1,36.7,24.7
+clean,0.5,telephone,42.6,41.9,41.6,35.3
+clean,0.5,telephone_codec,43.1,43.1,43.8,35.3
+clean,1.0,clean,34.8,33.1,33.0,23.8
+clean,1.0,telephone,40.8,40.9,38.5,32.5
+clean,1.0,telephone_codec,41.6,41.4,41.1,32.3

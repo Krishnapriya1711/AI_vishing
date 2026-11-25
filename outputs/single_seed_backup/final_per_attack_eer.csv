@@ -1,0 +1,14 @@
+regime,window,model,attack,eer
+clean,1.0,logistic_regression,A07,0.5093143844824275
+clean,1.0,logistic_regression,A08,0.1397461134665859
+clean,1.0,logistic_regression,A09,0.05941886340294422
+clean,1.0,logistic_regression,A10,0.48947234522747995
+clean,1.0,logistic_regression,A11,0.3123565841106797
+clean,1.0,logistic_regression,A12,0.49600920786541025
+clean,1.0,logistic_regression,A13,0.43152812005369556
+clean,1.0,logistic_regression,A14,0.2646887889013873
+clean,1.0,logistic_regression,A15,0.17467635624494307
+clean,1.0,logistic_regression,A16,0.4877344099110899
+clean,1.0,logistic_regression,A17,0.28877926613754956
+clean,1.0,logistic_regression,A18,0.35784572002849085
+clean,1.0,logistic_regression,A19,0.3533826332544934

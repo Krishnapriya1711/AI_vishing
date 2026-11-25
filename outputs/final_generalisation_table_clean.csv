@@ -1,0 +1,37 @@
+dataset,condition,model,EER_%,std_%,n_runs
+ASVspoof 2019 LA eval (in-domain),clean,cnn,23.3,1.2,5
+ASVspoof 2019 LA eval (in-domain),telephone,cnn,30.5,1.8,5
+ASVspoof 2019 LA eval (in-domain),telephone_codec,cnn,31.4,1.4,5
+ASVspoof 2019 LA eval (in-domain),clean,logistic_regression,34.8,0.0,1
+ASVspoof 2019 LA eval (in-domain),telephone,logistic_regression,40.8,0.0,1
+ASVspoof 2019 LA eval (in-domain),telephone_codec,logistic_regression,41.6,0.0,1
+ASVspoof 2019 LA eval (in-domain),clean,random_forest,33.5,0.0,1
+ASVspoof 2019 LA eval (in-domain),telephone,random_forest,41.0,0.0,1
+ASVspoof 2019 LA eval (in-domain),telephone_codec,random_forest,41.5,0.0,1
+ASVspoof 2019 LA eval (in-domain),clean,svm,33.0,0.0,1
+ASVspoof 2019 LA eval (in-domain),telephone,svm,38.5,0.0,1
+ASVspoof 2019 LA eval (in-domain),telephone_codec,svm,41.1,0.0,1
+DEEP-VOICE (external),clean,cnn,48.1,5.1,5
+DEEP-VOICE (external),telephone,cnn,43.7,2.7,5
+DEEP-VOICE (external),telephone_codec,cnn,43.2,2.6,5
+DEEP-VOICE (external),clean,logistic_regression,42.1,0.0,1
+DEEP-VOICE (external),telephone,logistic_regression,40.5,0.0,1
+DEEP-VOICE (external),telephone_codec,logistic_regression,40.3,0.0,1
+DEEP-VOICE (external),clean,random_forest,46.5,0.0,1
+DEEP-VOICE (external),telephone,random_forest,46.5,0.0,1
+DEEP-VOICE (external),telephone_codec,random_forest,45.8,0.0,1
+DEEP-VOICE (external),clean,svm,52.1,0.0,1
+DEEP-VOICE (external),telephone,svm,57.7,0.0,1
+DEEP-VOICE (external),telephone_codec,svm,56.0,0.0,1
+VISHGUARD (external),clean,cnn,47.5,2.6,5
+VISHGUARD (external),telephone,cnn,53.1,1.3,5
+VISHGUARD (external),telephone_codec,cnn,53.4,1.5,5
+VISHGUARD (external),clean,logistic_regression,50.0,0.0,1
+VISHGUARD (external),telephone,logistic_regression,47.6,0.0,1
+VISHGUARD (external),telephone_codec,logistic_regression,48.7,0.0,1
+VISHGUARD (external),clean,random_forest,46.3,0.0,1
+VISHGUARD (external),telephone,random_forest,48.8,0.0,1
+VISHGUARD (external),telephone_codec,random_forest,49.0,0.0,1
+VISHGUARD (external),clean,svm,45.8,0.0,1
+VISHGUARD (external),telephone,svm,48.4,0.0,1
+VISHGUARD (external),telephone_codec,svm,48.8,0.0,1
