@@ -1,0 +1,7 @@
+window_sec,model,condition,feature,eer,min_tdcf,accuracy,f1,auc
+3.0,cnn,clean,mel,0.0,0.0,1.0,1.0,1.0
+2.0,cnn,clean,mel,0.005,0.005000000000000001,0.995,0.995,0.999975
+1.5,cnn,clean,mel,0.025,0.068,0.975,0.975,0.996
+1.0,cnn,clean,mel,0.05,0.10800000000000001,0.95,0.95,0.993025
+0.75,cnn,clean,mel,0.155,0.3715,0.845,0.845,0.925675
+0.5,cnn,clean,mel,0.4,0.9255,0.6,0.6,0.642975
