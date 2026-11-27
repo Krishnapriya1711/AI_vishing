@@ -1,0 +1,286 @@
+================================================================
+AI VOICE VISHING DETECTION — PROJECT SUMMARY
+================================================================
+
+PROJECT GOAL
+------------
+Detect AI-generated (spoofed) speech in realistic voice-phishing
+(vishing) call conditions. The core research question is:
+
+  Can AI-cloned voices still be detected when speech is short,
+  compressed, and transmitted over a telephone channel?
+
+This addresses a gap in prior deepfake detection research, which
+typically assumes clean, full-length audio recordings.
+
+================================================================
+DATASET
+================================================================
+
+Primary dataset: ASVspoof 2019 Logical Access (LA)
+  - Train:  25,380 utterances (2,580 bona fide + 22,800 spoof)
+  - Dev:    24,844 utterances (2,548 bona fide + 22,296 spoof)
+  - Eval:   71,237 utterances (7,355 bona fide + 63,882 spoof)
+  - Total: 121,461 utterances across 19 TTS/VC spoofing systems
+
+External generalisation dataset: VishGuard
+  - 40 selected audio samples (Indian English and Hindi speakers)
+  - Used for cross-domain and cross-language evaluation only
+  - Never used for training or threshold tuning
+
+Deep Voice (RVC) dataset:
+  - Real voice conversion samples from 10 public figures
+    (Biden, Obama, Trump, Musk, Taylor Swift, Linus Torvalds, etc.)
+  - Used to evaluate robustness against a real-world deepfake tool
+  - Evaluated in both speaker-disjoint and frozen-model settings
+
+================================================================
+AUDIO CONDITIONS SIMULATED
+================================================================
+
+Three telephone channel conditions were applied dynamically during
+preprocessing to simulate real-world vishing scenarios:
+
+  1. Clean       — Original 16 kHz audio, no degradation
+  2. Telephone   — Band-limited to 300–3400 Hz, downsampled to 8 kHz
+  3. Telephone + G.711 A-law Codec — Telephone + G.711 A-law codec
+                   compression applied (standard PSTN encoding)
+
+Speech was also segmented into short fixed-length windows:
+  Window sizes tested: 0.5 s, 0.75 s, 1.0 s, 1.5 s, 2.0 s, 3.0 s
+
+================================================================
+FEATURE EXTRACTION
+================================================================
+
+Three hand-crafted feature sets were extracted from each window:
+
+  - MFCC (120 features)     — 40 MFCCs × mean/std/delta statistics
+  - Spectral (24 features)  — Centroid, bandwidth, rolloff, ZCR etc.
+  - F0 / Prosody (8 features) — Pitch mean, std, range, voicing ratio
+
+A log-Mel spectrogram (64 mel bands × up to 300 frames) was
+extracted separately as input to the CNN model.
+
+A feature comparison experiment was run to determine which
+combination of hand-crafted features is most informative across
+all three conditions.
+
+================================================================
+MODELS
+================================================================
+
+Four models were trained and evaluated:
+
+  1. Logistic Regression  — On MFCC statistics (baseline)
+  2. Random Forest        — On MFCC statistics (baseline)
+  3. SVM (RBF kernel)     — On MFCC statistics (baseline)
+  4. Lightweight Mel-CNN  — On log-Mel spectrograms
+
+  CNN architecture:
+    - 3 × Conv2D + BatchNorm + ReLU + MaxPool2D blocks
+    - AdaptiveAvgPool → Flatten → FC(128→64) → Dropout(0.3) → FC(64→2)
+
+Training regimes:
+  - clean : trained on clean audio only
+            (measures the telephone channel gap)
+  - aug   : trained on clean + telephone + codec
+            (measures what augmentation recovers)
+
+================================================================
+EXPERIMENTAL PROTOCOL (CORRECTED)
+================================================================
+
+A key correction pass was performed after an initial review to
+ensure a sound and reproducible evaluation protocol:
+
+  1. No noise injection — features used as extracted
+  2. Train/val split — 80% train, 20% validation
+  3. CNN early stopping — based on validation loss only
+  4. EER threshold — found on validation set, frozen, then applied
+     to evaluation set exactly once per model/condition/seed
+  5. Evaluation set — touched exactly once per model per condition
+  6. Same train/val/eval splits used for all four models
+  7. Deterministic seeds — random, numpy, and torch all seeded
+  8. Graph axes start at 0 (not clipped to hide poor results)
+
+Multiple random seeds (3–5) were used for stochastic models (CNN,
+Random Forest) to estimate variance. Logistic Regression and SVM
+are deterministic and run once. 95% bootstrap confidence intervals
+are reported over evaluation samples.
+
+================================================================
+EXPERIMENTS RUN
+================================================================
+
+1. SHORT-DURATION EXPERIMENT
+   - Measured EER and tDCF across window sizes (0.5 s to 3.0 s)
+   - For all four models × three conditions × two training regimes
+   - Results: outputs/final_results.csv, outputs/seeds5/
+   - Figures: figures/final_eer_vs_window.png
+              figures/fig1_short_duration_eer.png
+              figures/fig2_short_duration_tdcf.png
+              figures/fig3_short_duration_accuracy.png
+
+2. PHONE / CODEC ROBUSTNESS EXPERIMENT
+   - Measured the performance gap between clean and telephone/codec
+     conditions at fixed window sizes
+   - Compared clean-trained vs augmentation-trained models
+   - Results: outputs/corrected_phone_robustness_results.csv
+   - Figures: figures/final_phone_robustness.png
+              figures/fig4_phone_robustness_eer.png
+              figures/fig5_phone_robustness_tdcf.png
+              figures/corrected_phone_robustness_eer.png
+
+3. CNN vs BASELINES COMPARISON
+   - Direct comparison of Mel-CNN against the three classical models
+   - Results: outputs/cnn_short_duration_results.csv
+              outputs/cnn_phone_robustness_results.csv
+   - Figures: figures/fig_cnn_vs_baselines_eer.png
+              figures/fig_cnn_vs_baselines_tdcf.png
+              figures/fig_cnn_vs_baselines_accuracy.png
+              figures/fig_cnn_dashboard.png
+
+4. SLIDING-WINDOW / STREAMING DETECTION
+   - Simulated real-time detection as audio arrives in 1-second
+     windows with 0.5 s hop
+   - Four aggregation rules tested:
+       mean    — running mean of window scores
+       ma3     — mean of last 3 windows
+       vote    — fraction of windows above frozen threshold
+       consec2 — best score from two consecutive windows
+   - Measured detection latency (how many seconds before alarm fires)
+   - Results: outputs/streaming/
+   - Figures: figures/stream_early_detection_clean.png
+              figures/stream_early_detection_aug.png
+              figures/stream_latency_clean.png
+              figures/stream_latency_aug.png
+              figures/stream_roc_clean.png
+              figures/stream_roc_aug.png
+              figures/stream_confusion_cnn_clean.png
+              figures/stream_confusion_cnn_aug.png
+              figures/fig6_sliding_window_scores.png
+
+5. DEEP-VOICE (RVC) GENERALISATION
+   - Evaluated frozen ASVspoof-trained models on real-world
+     RVC (Retrieval-based Voice Conversion) deepfakes
+   - 10 public figure voices converted using Deep-Voice tool
+   - No retraining or threshold tuning on this data
+   - Reported per-model, per-condition, and per-speaker metrics
+   - Results: outputs/deepvoice/
+   - Figures: figures/final_deepvoice.png
+
+6. SPEAKER-DISJOINT DEEP-VOICE EVALUATION
+   - 4-fold cross-validation with 2 held-out speakers per fold
+   - Fine-tuned vs trained-from-scratch CNN on speaker splits
+   - Results: outputs/deepvoice/deepvoice_speaker_disjoint_*.csv
+
+7. VISHGUARD (INDIAN ENGLISH / HINDI) GENERALISATION
+   - External evaluation on VishGuard dataset (40 samples)
+   - Window-level and call-level AUC reported
+   - Alarm rates computed using frozen dev thresholds
+   - Results: outputs/final_vishguard_results.csv
+              outputs/vishguard_alarms.csv
+   - Figures: figures/final_vishguard_call_auc.png
+
+8. ABLATION STUDY
+   - Investigated which training data mix (audio conditions)
+     is most important for CNN robustness
+   - Regimes tested: clean only, telephone only, codec only,
+     mixed (all three), mixed+ (with augmented variants)
+   - Results: outputs/ablation/
+   - Figures: figures/final_ablation.png
+              figures/ablation_heatmap.png
+
+9. FEATURE COMPARISON
+   - Compared MFCC, Spectral, F0, and combinations thereof
+     across all three channel conditions
+   - Results: outputs/feature_comparison.csv
+   - Figures: figures/feature_comparison.png
+              figures/fig7_mfcc_comparison.png
+              figures/fig8_mel_comparison.png
+
+10. AGGREGATION RULES ANALYSIS
+    - Detailed breakdown of the four streaming aggregation rules
+    - Results: outputs/aggregation/
+    - Figures: figures/aggregation_rules.png
+               figures/channel_gap.png
+
+11. DIAGNOSTIC FIGURES
+    - ROC curves and confusion matrices for final models
+    - Per-attack EER breakdown across all 19 spoofing systems
+    - Generalisation gap visualisation (clean vs augmented)
+    - Figures: figures/final_roc.png
+               figures/final_confusion.png
+               figures/final_per_attack_eer.png
+               figures/final_generalisation_gap_clean.png
+               figures/final_generalisation_gap_aug.png
+               figures/final_early_detection.png
+
+================================================================
+SOURCE CODE STRUCTURE
+================================================================
+
+preprocessing/     — Audio loading, channel simulation (telephone
+                     bandwidth + G.711 codec), metadata creation,
+                     VishGuard dataset preparation
+
+features/          — Feature extraction pipeline (MFCC, spectral,
+                     F0, log-Mel spectrogram)
+
+src/
+  data/            — Dataset loading and metadata handling
+  features/        — Feature extractor classes
+  models/          — Baseline classifiers and CNN definition
+  evaluation/      — EER, tDCF, AUC, bootstrap CI metrics
+  utils/           — Config, audio utilities
+
+experiments/       — All experiment scripts:
+  run_final_experiments.py        Main multi-seed experiment runner
+  run_corrected_experiments.py    Corrected protocol version
+  streaming_eval.py               Sliding-window streaming analysis
+  eval_deepvoice.py               Deep-Voice RVC evaluation
+  deepvoice_speaker_split.py      Speaker-disjoint RVC evaluation
+  ablation.py                     Training regime ablation
+  feature_comparison.py           Feature set comparison
+  make_paper_figures.py           Final paper-quality figures
+  make_diag_figures.py            ROC and confusion matrix figures
+  make_generalisation_figure.py   Generalisation gap figures
+  make_final_figures.py           Combined dashboard figures
+  generate_graphs.py              fig1–fig10 standard plots
+  stream_analyze.py               Streaming score visualisation
+  agg_tau.py                      Aggregation threshold analysis
+  demo_stream.py                  Real-time detection demo
+
+data/
+  raw/             — ASVspoof 2019 LA FLAC audio (not in repo)
+  processed/       — Cached .npz feature arrays (not in repo)
+  metadata/        — CSV metadata files for all splits and conditions
+
+outputs/           — All experiment results (CSV, PNG, .tex tables)
+figures/           — All publication-ready figures
+
+paper/             — LaTeX source for the paper (main.tex)
+
+================================================================
+KEY FINDINGS (SUMMARY)
+================================================================
+
+- Detection degrades significantly at short durations (<1 s),
+  especially under telephone/codec conditions.
+- Augmentation training (clean + telephone + codec) substantially
+  closes the channel gap vs clean-only training.
+- The Mel-CNN outperforms classical baselines at most durations
+  and conditions, particularly at ≥1 s windows.
+- Sliding-window streaming detection can raise an alarm within
+  2–3 seconds with reasonable accuracy using the mean aggregation rule.
+- Models trained on ASVspoof do not generalise well to Deep-Voice
+  (RVC) deepfakes out-of-the-box; AUC values are near chance in
+  some conditions.
+- VishGuard (Indian English/Hindi) evaluation shows reduced but
+  non-trivial detection capability, indicating some cross-language
+  generalisation.
+
+================================================================
+END OF SUMMARY
+================================================================
